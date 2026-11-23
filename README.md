@@ -5,7 +5,7 @@
 <p align="center">
   <a href="https://github.com/MaxKarasha/ukr-dev-kit/actions/workflows/ci.yml"><img src="https://github.com/MaxKarasha/ukr-dev-kit/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/ліцензія-MIT-2f7bff" alt="Ліцензія MIT"></a>
-  <img src="https://img.shields.io/badge/Python-3.9+-3776AB?logo=python&logoColor=white" alt="Python 3.9+">
+  <img src="https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white" alt="Python 3.10+">
   <img src="https://img.shields.io/badge/залежності-0-3fb950" alt="Без залежностей">
   <img src="https://img.shields.io/badge/Claude_Code-плагін-D97757?logo=claude&logoColor=white" alt="Плагін Claude Code">
   <img src="https://img.shields.io/badge/Agent_Skills-сумісно-6E56CF" alt="Agent Skills">
@@ -80,7 +80,7 @@ cp -r ukr-dev-kit/skills/* ~/.claude/skills/
 
 **Без агента** — усі інструменти працюють як звичайні CLI: `python3 skills/<скіл>/scripts/<скрипт>.py --help`.
 
-Потрібно: Python 3.9+. Для mp3 — `ffmpeg`. Для локальної озвучки — Python 3.10+ і ~2 ГБ на диску.
+Потрібно: Python 3.10+. Для mp3 — `ffmpeg`. Для локальної озвучки — ще ~2 ГБ на диску.
 
 ---
 
@@ -210,7 +210,7 @@ repos:
 **GitHub Actions** — анотації просто в рядках PR:
 
 ```yaml
-- uses: actions/checkout@v4
+- uses: actions/checkout@v5
   with:
     fetch-depth: 0
 - uses: MaxKarasha/ukr-dev-kit@v0.1.0

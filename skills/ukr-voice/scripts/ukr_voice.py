@@ -590,8 +590,6 @@ def cmd_setup(a):
         print(f'Збережено в {CREDS} (доступ лише для вас).')
         return
     # holos
-    if sys.version_info < (3, 10):
-        die('для HolosTTS потрібен Python 3.10+')
     if not shutil.which('git'):
         die('потрібен git')
     os.makedirs(DATA, exist_ok=True)

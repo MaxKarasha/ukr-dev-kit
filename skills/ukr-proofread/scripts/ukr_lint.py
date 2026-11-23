@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """ukr-lint — вичитка українських текстів: суржик, кальки, типографіка, змішані алфавіти.
 
-Лише стандартна бібліотека Python 3.9+. Працює з текстом, Markdown, JSON/ARB, YAML, .po, .properties,
+Лише стандартна бібліотека Python 3.10+. Працює з текстом, Markdown, JSON/ARB, YAML, .po, .properties,
 XML/HTML/Vue і рядками в коді (JS/TS, Python, C#, Java, Kotlin, Swift, Dart, Go, PHP, Ruby).
 
     ukr_lint.py README.md docs/ src/locales/uk.json   # файли й теки
