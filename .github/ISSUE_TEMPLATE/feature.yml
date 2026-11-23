@@ -1,0 +1,14 @@
+name: Ідея
+description: Нова можливість, формат, фреймворк чи голос
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Яку задачу розвʼязує
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Як це могло б працювати

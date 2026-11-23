@@ -1,0 +1,13 @@
+{
+  "name": "ukr-dev-kit",
+  "version": "0.1.0",
+  "description": "Українська мова для AI-агентів: озвучка (Gemini TTS / HolosTTS), вичитка суржику й типографіки, локалізація застосунків, українські дані (РНОКПП, ЄДРПОУ, IBAN, транслітерація, сума прописом).",
+  "author": {
+    "name": "Maksym Karasha",
+    "url": "https://github.com/MaxKarasha"
+  },
+  "homepage": "https://github.com/MaxKarasha/ukr-dev-kit",
+  "repository": "https://github.com/MaxKarasha/ukr-dev-kit",
+  "license": "MIT",
+  "keywords": ["ukrainian", "uk", "tts", "gemini", "i18n", "l10n", "proofreading", "surzhyk", "rnokpp", "iban", "transliteration"]
+}

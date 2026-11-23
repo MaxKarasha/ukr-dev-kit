@@ -1,0 +1,5 @@
+<resources>
+  <string name="app_name">Notes</string>
+  <string name="saved">Saved %1$s notes</string>
+  <plurals name="notes"><item quantity="one">%d note</item><item quantity="other">%d notes</item></plurals>
+</resources>

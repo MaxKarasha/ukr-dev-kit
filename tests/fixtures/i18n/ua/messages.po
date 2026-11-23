@@ -1,0 +1,15 @@
+msgid ""
+msgstr ""
+"Language: uk\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "Save"
+msgstr "Сохранить"
+
+msgid "Delete"
+msgstr ""
+
+msgid "%d file"
+msgid_plural "%d files"
+msgstr[0] "%d файл"
+msgstr[1] "%d файли"

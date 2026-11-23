@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.DS_Store
+.idea/
+.vscode/
+*.log
+/out/
+/tmp/
+# озвучка, згенерована під час експериментів (зразки для README лежать у docs/samples)
+*.wav
+!docs/samples/*.wav

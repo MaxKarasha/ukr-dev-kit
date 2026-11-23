@@ -1,0 +1,58 @@
+name: ukr-dev-kit
+description: Вичитка українських текстів (суржик, типографіка) і перевірка української локалізації з анотаціями в PR.
+author: Maksym Karasha
+branding:
+  icon: check-circle
+  color: blue
+
+inputs:
+  paths:
+    description: Файли й теки для вичитки (через пробіл). Порожньо — лише змінені в PR рядки.
+    required: false
+    default: ''
+  level:
+    description: Мінімальний рівень — error, warning або hint.
+    required: false
+    default: warning
+  i18n:
+    description: Перевіряти українські локалі (true/false).
+    required: false
+    default: 'true'
+  strict:
+    description: Падати й на попередженнях (true/false).
+    required: false
+    default: 'false'
+
+runs:
+  using: composite
+  steps:
+    - name: ukr-lint
+      shell: bash
+      env:
+        PYTHONUTF8: '1'
+        INPUT_PATHS: ${{ inputs.paths }}
+        INPUT_LEVEL: ${{ inputs.level }}
+        INPUT_STRICT: ${{ inputs.strict }}
+        BASE_REF: ${{ github.base_ref }}
+      run: |
+        args=(--format github --level "$INPUT_LEVEL")
+        [ "$INPUT_STRICT" = "true" ] && args+=(--strict)
+        if [ -n "$INPUT_PATHS" ]; then
+          # shellcheck disable=SC2086
+          python3 "$GITHUB_ACTION_PATH/skills/ukr-proofread/scripts/ukr_lint.py" "${args[@]}" $INPUT_PATHS
+        elif [ -n "$BASE_REF" ]; then
+          git fetch --no-tags --depth=1 origin "$BASE_REF"
+          python3 "$GITHUB_ACTION_PATH/skills/ukr-proofread/scripts/ukr_lint.py" "${args[@]}" --diff "origin/$BASE_REF"
+        else
+          python3 "$GITHUB_ACTION_PATH/skills/ukr-proofread/scripts/ukr_lint.py" "${args[@]}" .
+        fi
+    - name: ukr-i18n
+      if: inputs.i18n == 'true'
+      shell: bash
+      env:
+        PYTHONUTF8: '1'
+        INPUT_STRICT: ${{ inputs.strict }}
+      run: |
+        args=(--auto --format github)
+        [ "$INPUT_STRICT" = "true" ] && args+=(--strict)
+        python3 "$GITHUB_ACTION_PATH/skills/ukr-i18n/scripts/i18n_check.py" "${args[@]}"

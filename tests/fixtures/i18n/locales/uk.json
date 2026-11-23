@@ -1,0 +1,12 @@
+{
+  "nav": {"home": "Головна", "settings": "Настройки"},
+  "greeting": "Привіт, {{username}}!",
+  "files_one": "{{count}} файл",
+  "files_few": "{{count}} файли",
+  "cart": "{count, plural, one {# товар} other {# товарів}}",
+  "apples": "немає яблук | одне яблуко | {count} яблука",
+  "terms": "Прийміть Умови використання",
+  "welcome": "Welcome to our application",
+  "api": "API",
+  "old_key": "Застарілий рядок"
+}

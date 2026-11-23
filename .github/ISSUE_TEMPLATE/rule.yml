@@ -1,0 +1,27 @@
+name: Правило вичитки
+description: Запропонувати нове правило або повідомити про хибне спрацювання
+labels: [rules]
+body:
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Що саме
+      options: [Нове правило, Хибне спрацювання, Неточне пояснення]
+    validations:
+      required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: Приклад тексту
+      description: Речення, де правило має (або не має) спрацьовувати.
+    validations:
+      required: true
+  - type: input
+    id: correct
+    attributes:
+      label: Як правильно
+  - type: input
+    id: source
+    attributes:
+      label: Джерело
+      description: Правопис, словник, довідник — посилання допоможе швидше ухвалити зміну.

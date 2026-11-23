@@ -1,0 +1,11 @@
+{
+  "nav": {"home": "Home", "settings": "Settings", "logout": "Sign out"},
+  "greeting": "Hello, {{name}}!",
+  "files_one": "{{count}} file",
+  "files_other": "{{count}} files",
+  "cart": "{count, plural, one {# item} other {# items}}",
+  "apples": "no apples | one apple | {count} apples",
+  "terms": "Accept <0>Terms of Service</0>",
+  "welcome": "Welcome to our application",
+  "api": "API"
+}

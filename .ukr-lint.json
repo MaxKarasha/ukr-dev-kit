@@ -1,0 +1,12 @@
+{
+  "apostrophe": "ʼ",
+  "ignore": [
+    "tests/fixtures/**",
+    "skills/ukr-proofread/rules/*.txt",
+    "docs/demo/**"
+  ],
+  "allow": [
+    "HolosTTS",
+    "Gemini"
+  ]
+}

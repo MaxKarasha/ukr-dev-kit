@@ -1,0 +1,8 @@
+{
+  "greeting": "Привіт, {{username}}!",
+  "files_one": "{{count}} файл",
+  "files_other": "{{count}} файлів",
+  "cart": "{count, plural, one {# товар} other {# товарів}}",
+  "settings": "Настройки",
+  "welcome": "Welcome back"
+}

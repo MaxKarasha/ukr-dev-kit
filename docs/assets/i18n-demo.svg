@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1050" height="299" viewBox="0 0 1050 299">
+<rect width="1050" height="299" rx="12" fill="#0d1117"/>
+<rect width="1050" height="34" rx="12" fill="#161b22"/><rect y="22" width="1050" height="12" fill="#161b22"/>
+<circle cx="22" cy="17" r="6" fill="#ff5f57"/><circle cx="42" cy="17" r="6" fill="#febc2e"/><circle cx="62" cy="17" r="6" fill="#28c840"/>
+<g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="14" fill="#e6edf3" xml:space="preserve">
+<text x="22" y="60"><tspan fill="#3fb950">$ </tspan><tspan font-weight="700">ukr-i18n docs/demo/i18n/en.json docs/demo/i18n/uk.json --lint</tspan></text>
+<text x="22" y="81"></text>
+<text x="22" y="102"><tspan font-weight="700" text-decoration="underline">docs/demo/i18n/uk.json</tspan></text>
+<text x="22" y="123"><tspan>  </tspan><tspan fill="#ff7b72">помилка</tspan><tspan>  </tspan><tspan font-weight="700">greeting</tspan><tspan>  плейсхолдери: бракує {{name}}; зайві {{username}}  </tspan><tspan fill="#8b949e">[placeholder]</tspan></text>
+<text x="22" y="144"><tspan>  </tspan><tspan fill="#ff7b72">помилка</tspan><tspan>  </tspan><tspan font-weight="700">cart</tspan><tspan>  ICU plural без форм: few, many (для української: one, few, many, other)  </tspan><tspan fill="#8b949e">[plural]</tspan></text>
+<text x="22" y="165"><tspan>  </tspan><tspan fill="#ff7b72">помилка</tspan><tspan>  </tspan><tspan font-weight="700">settings</tspan><tspan>  «Настройки» → налаштування  </tspan><tspan fill="#8b949e">[lint:surzhyk/настройка]</tspan></text>
+<text x="22" y="186"><tspan>  </tspan><tspan fill="#ff7b72">помилка</tspan><tspan>  </tspan><tspan font-weight="700">logout</tspan><tspan>  немає перекладу  </tspan><tspan fill="#8b949e">[missing]</tspan></text>
+<text x="22" y="207"><tspan>  </tspan><tspan fill="#e3b341">увага  </tspan><tspan>  </tspan><tspan font-weight="700">welcome</tspan><tspan>  збігається з оригіналом: «Welcome back»  </tspan><tspan fill="#8b949e">[untranslated]</tspan></text>
+<text x="22" y="228"><tspan>  </tspan><tspan fill="#ff7b72">помилка</tspan><tspan>  </tspan><tspan font-weight="700">files_*</tspan><tspan>  бракує форм множини: files_few, files_many (українській потрібні one, few, many, other)  </tspan><tspan fill="#8b949e">[plural]</tspan></text>
+<text x="22" y="249"></text>
+<text x="22" y="270"><tspan>✖ помилок: 5, попереджень: 1. Перевірено: uk.json.</tspan></text>
+</g></svg>

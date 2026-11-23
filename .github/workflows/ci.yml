@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Тести (Python ${{ matrix.python }}, ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python: ['3.9', '3.11', '3.13']
+        include:
+          - os: macos-latest
+            python: '3.12'
+          - os: windows-latest
+            python: '3.12'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Модульні тести
+        run: python -m unittest discover -s tests -v
+        env:
+          PYTHONIOENCODING: utf-8
+          PYTHONUTF8: '1'
+
+  checks:
+    name: Структура, валідатори, вичитка власних текстів
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Маніфести й SKILL.md
+        run: python tools/validate_skills.py
+      - name: Код валідаторів з документації (Python, TypeScript, C#)
+        run: python tools/check_validators.py --require-all
+      - name: ukr-lint на власній документації
+        run: python skills/ukr-proofread/scripts/ukr_lint.py --format github README.md CONTRIBUTING.md CHANGELOG.md skills/*/SKILL.md skills/*/references

@@ -1,0 +1,52 @@
+{
+  "оповідач": {
+    "note": "Теплий жіночий оповідач — типовий голос",
+    "gemini": {"voice": "Sulafat", "style": "warm, natural Ukrainian narrator, clear diction, moderate pace"},
+    "holos": {"voice": "Speaker_67"}
+  },
+  "оповідач-ч": {
+    "note": "Спокійний чоловічий оповідач",
+    "gemini": {"voice": "Charon", "style": "calm, trustworthy male narrator, clear diction, moderate pace"},
+    "holos": {"voice": "Speaker_42"}
+  },
+  "новини": {
+    "note": "Ведуча новин — впевнено й рівно",
+    "gemini": {"voice": "Kore", "style": "confident news anchor, crisp and neutral, steady pace"},
+    "holos": {"voice": "Speaker_67", "expr": 0.9}
+  },
+  "реклама": {
+    "note": "Промо й реклама — енергійно, з усмішкою",
+    "gemini": {"voice": "Laomedeia", "style": "bright, energetic, smiling commercial voice, premium app ad"},
+    "holos": {"voice": "Speaker_67", "expr": 1.25, "speed": 1.06}
+  },
+  "реклама-ч": {
+    "note": "Промо — чоловічий голос",
+    "gemini": {"voice": "Puck", "style": "upbeat, confident commercial voice, smiling"},
+    "holos": {"voice": "Speaker_42", "expr": 1.25, "speed": 1.06}
+  },
+  "казка": {
+    "note": "Казки й дитячий контент — повільно, лагідно",
+    "gemini": {"voice": "Achernar", "style": "gentle storyteller for children, slow, warm, expressive"},
+    "holos": {"voice": "Speaker_67", "expr": 1.2, "speed": 0.95}
+  },
+  "урок": {
+    "note": "Навчальні матеріали — чітко, трохи повільніше",
+    "gemini": {"voice": "Erinome", "style": "clear, patient teacher, articulate, slightly slower pace"},
+    "holos": {"voice": "Speaker_67", "speed": 0.95}
+  },
+  "подкаст": {
+    "note": "Розмовна подача для подкастів і діалогів",
+    "gemini": {"voice": "Aoede", "style": "relaxed, conversational podcast host"},
+    "holos": {"voice": "Speaker_67", "expr": 1.15}
+  },
+  "подкаст-ч": {
+    "note": "Розмовна подача — чоловічий голос",
+    "gemini": {"voice": "Achird", "style": "friendly, conversational podcast host"},
+    "holos": {"voice": "Speaker_42", "expr": 1.15}
+  },
+  "гід": {
+    "note": "Голосові підказки в застосунку, IVR — коротко й привітно",
+    "gemini": {"voice": "Zephyr", "style": "friendly, helpful voice assistant, concise"},
+    "holos": {"voice": "Speaker_67", "speed": 1.03}
+  }
+}

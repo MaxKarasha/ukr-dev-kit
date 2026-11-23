@@ -1,0 +1,30 @@
+name: Помилка
+description: Інструмент працює не так, як має
+labels: [bug]
+body:
+  - type: dropdown
+    id: skill
+    attributes:
+      label: Скіл
+      options: [ukr-voice, ukr-proofread, ukr-i18n, ukr-data, хук / плагін, інше]
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: Що сталося
+      description: Команда, вхідний текст або файл, і що ви побачили.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Що очікували
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Оточення
+      description: ОС, версія Python; для озвучки — вивід `ukr_voice.py doctor`.
