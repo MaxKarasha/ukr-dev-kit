@@ -1,0 +1,58 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ukr-dev-kit"
+dynamic = ["version"]
+description = "Українська мова для розробників і AI-агентів: вичитка суржику й типографіки, перевірка локалізації, українські дані (РНОКПП, ЄДРПОУ, IBAN), озвучка."
+readme = "docs/PYPI.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Maksym Karasha" }]
+keywords = ["ukrainian", "linter", "proofreading", "surzhyk", "i18n", "l10n", "localization", "tts",
+            "rnokpp", "edrpou", "iban", "transliteration", "claude-code", "agent-skills"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Natural Language :: Ukrainian",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Software Development :: Internationalization",
+    "Topic :: Software Development :: Localization",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Text Processing :: Linguistic",
+    "Topic :: Multimedia :: Sound/Audio :: Speech",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/MaxKarasha/ukr-dev-kit"
+Documentation = "https://github.com/MaxKarasha/ukr-dev-kit#readme"
+Changelog = "https://github.com/MaxKarasha/ukr-dev-kit/blob/main/CHANGELOG.md"
+Issues = "https://github.com/MaxKarasha/ukr-dev-kit/issues"
+
+[project.scripts]
+ukr-lint = "ukr_dev_kit.cli:lint"
+ukr-i18n = "ukr_dev_kit.cli:i18n"
+ukr-data = "ukr_dev_kit.cli:data"
+ukr-voice = "ukr_dev_kit.cli:voice"
+
+[tool.hatch.version]
+path = "src/ukr_dev_kit/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ukr_dev_kit"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"skills" = "ukr_dev_kit/skills"
+
+[tool.hatch.build.targets.sdist]
+include = ["src/", "skills/", "tests/", "docs/PYPI.md", "README.md", "CHANGELOG.md", "LICENSE", "pyproject.toml"]
+exclude = ["**/__pycache__"]
+
+[tool.hatch.build]
+exclude = ["**/__pycache__", "**/*.pyc"]

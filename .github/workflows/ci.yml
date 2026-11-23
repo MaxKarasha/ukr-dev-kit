@@ -78,3 +78,30 @@ jobs:
         run: |
           echo "::error::Action мала впасти на tests/fixtures/bad.md"
           exit 1
+
+  package:
+    name: Пакет PyPI (збірка й встановлення)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Версія однакова скрізь
+        run: python tools/bump_version.py --check
+      - name: Зібрати
+        run: |
+          python -m pip install --quiet build twine
+          python -m build
+          python -m twine check --strict dist/*
+      - name: Встановити wheel у чисте оточення й перевірити команди
+        run: |
+          python -m venv /tmp/v
+          /tmp/v/bin/pip install --quiet dist/*.whl
+          cd /tmp
+          /tmp/v/bin/ukr-lint --version
+          /tmp/v/bin/ukr-data check 3652504575
+          /tmp/v/bin/ukr-data amount 1234.56
+          /tmp/v/bin/ukr-voice presets > /dev/null
+          /tmp/v/bin/ukr-i18n --help > /dev/null
+          if /tmp/v/bin/ukr-lint -t "Нажміть тут"; then echo "::error::ukr-lint мав знайти помилку"; exit 1; fi

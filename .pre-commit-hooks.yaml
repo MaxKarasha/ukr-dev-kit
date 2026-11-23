@@ -1,20 +1,20 @@
 - id: ukr-lint
   name: ukr-lint — вичитка українських текстів
   description: Суржик, кальки, типографіка й змішані алфавіти в документації, локалях і рядках коду.
-  entry: skills/ukr-proofread/scripts/ukr_lint.py
-  language: script
-  types_or: [markdown, text, json, yaml, html, vue, javascript, jsx, ts, tsx, python, xml, po]
+  entry: ukr-lint
+  language: python
+  types_or: [markdown, text, json, yaml, html, vue, javascript, jsx, ts, tsx, python, xml, pofile]
 
 - id: ukr-lint-fix
   name: ukr-lint --fix — безпечні типографічні виправлення
-  entry: skills/ukr-proofread/scripts/ukr_lint.py --fix
-  language: script
+  entry: ukr-lint --fix
+  language: python
   types_or: [markdown, text, json, yaml]
 
 - id: ukr-i18n
   name: ukr-i18n — перевірка української локалізації
   description: Пропущені ключі, плейсхолдери, форми множини, неперекладене.
-  entry: skills/ukr-i18n/scripts/i18n_check.py --auto
-  language: script
+  entry: ukr-i18n --auto
+  language: python
   pass_filenames: false
   always_run: true

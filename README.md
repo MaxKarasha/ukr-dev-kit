@@ -4,6 +4,7 @@
 
 <p align="center">
   <a href="https://github.com/MaxKarasha/ukr-dev-kit/actions/workflows/ci.yml"><img src="https://github.com/MaxKarasha/ukr-dev-kit/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://pypi.org/project/ukr-dev-kit/"><img src="https://img.shields.io/pypi/v/ukr-dev-kit?label=PyPI&color=2f7bff" alt="PyPI"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/ліцензія-MIT-2f7bff" alt="Ліцензія MIT"></a>
   <img src="https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white" alt="Python 3.10+">
   <img src="https://img.shields.io/badge/залежності-0-3fb950" alt="Без залежностей">
@@ -78,7 +79,12 @@ git clone https://github.com/MaxKarasha/ukr-dev-kit
 cp -r ukr-dev-kit/skills/* ~/.claude/skills/
 ```
 
-**Без агента** — усі інструменти працюють як звичайні CLI: `python3 skills/<скіл>/scripts/<скрипт>.py --help`.
+**Без агента** — як звичайні консольні команди з PyPI:
+
+```bash
+pipx install ukr-dev-kit      # або: uv tool install ukr-dev-kit
+ukr-lint --help               # також ukr-i18n, ukr-data, ukr-voice
+```
 
 Потрібно: Python 3.10+. Для mp3 — `ffmpeg`. Для локальної озвучки — ще ~2 ГБ на диску.
 
@@ -97,12 +103,12 @@ cp -r ukr-dev-kit/skills/* ~/.claude/skills/
 | <a href="https://github.com/MaxKarasha/ukr-dev-kit/raw/main/docs/samples/offline.mp3"><img src="docs/assets/wave-offline.png" width="320" alt="Офлайн"></a> | **Офлайн** — HolosTTS на ноутбуці, без інтернету |
 
 ```bash
-ukr_voice.py doctor                                   # що встановлено й який рушій буде обрано
-ukr_voice.py say "Привіт! Це перевірка." -o hi.mp3    # пресет «оповідач»
-ukr_voice.py say "(захоплено) Нова версія вже тут! / *Швидше* й зручніше." -o ad.mp3 --preset реклама
-ukr_voice.py dialog scene.txt -o scene.mp3 --split lines/    # діалог + кожна репліка окремо
-ukr_voice.py audition "Вітаємо!" -o picks/ --gender f        # одна фраза різними голосами
-ukr_voice.py check hi.mp3 --text "Привіт! Це перевірка."     # Whisper: що почуто й % збігу
+ukr-voice doctor                                   # що встановлено й який рушій буде обрано
+ukr-voice say "Привіт! Це перевірка." -o hi.mp3    # пресет «оповідач»
+ukr-voice say "(захоплено) Нова версія вже тут! / *Швидше* й зручніше." -o ad.mp3 --preset реклама
+ukr-voice dialog scene.txt -o scene.mp3 --split lines/    # діалог + кожна репліка окремо
+ukr-voice audition "Вітаємо!" -o picks/ --gender f        # одна фраза різними голосами
+ukr-voice check hi.mp3 --text "Привіт! Це перевірка."     # Whisper: що почуто й % збігу
 ```
 
 |  | Gemini TTS | HolosTTS |
@@ -112,7 +118,7 @@ ukr_voice.py check hi.mp3 --text "Привіт! Це перевірка."     # 
 | Голоси | 30 (з підказками, які пасують українській) | десятки + суміші голосів |
 | Діалоги | одним запитом, голоси «чують» одне одного | по репліках |
 | Вартість | безкоштовний рівень Gemini API, далі — за тарифом | безкоштовно, без лімітів |
-| Налаштування | `ukr_voice.py setup gemini` | `ukr_voice.py setup holos` (~2 ГБ) |
+| Налаштування | `ukr-voice setup gemini` | `ukr-voice setup holos` (~2 ГБ) |
 
 **Що ще вміє:** 10 пресетів (оповідач, новини, реклама, казка, урок, подкаст, гід…) з налаштуваннями для
 обох рушіїв; режисерська розмітка — емоції `(радісно)`, паузи `/ // ///`, логічний наголос `*слово*`,
@@ -124,11 +130,11 @@ ukr_voice.py check hi.mp3 --text "Привіт! Це перевірка."     # 
 <p align="center"><img src="docs/assets/lint-demo.svg" alt="ukr-lint знаходить суржик, змішані алфавіти й типографіку в uk.json" width="88%"></p>
 
 ```bash
-ukr_lint.py README.md docs/ src/locales/uk.json   # файли й теки
-ukr_lint.py --diff origin/main                     # лише рядки, змінені в гілці (для PR)
-ukr_lint.py --staged                               # лише те, що в індексі (перед комітом)
-ukr_lint.py --fix docs/                            # безпечні виправлення (позначені ✎)
-ukr_lint.py --format github                        # анотації в GitHub Actions
+ukr-lint README.md docs/ src/locales/uk.json   # файли й теки
+ukr-lint --diff origin/main                     # лише рядки, змінені в гілці (для PR)
+ukr-lint --staged                               # лише те, що в індексі (перед комітом)
+ukr-lint --fix docs/                            # безпечні виправлення (позначені ✎)
+ukr-lint --format github                        # анотації в GitHub Actions
 ```
 
 - **140+ правил** у простих текстових файлах: суржик, кальки, правопис 2019, ІТ-терміни. Нове правило —
@@ -149,8 +155,8 @@ ukr_lint.py --format github                        # анотації в GitHub 
 <p align="center"><img src="docs/assets/i18n-demo.svg" alt="ukr-i18n порівнює uk.json з en.json" width="88%"></p>
 
 ```bash
-i18n_check.py --auto            # знайде всі українські локалі й порівняє з англійськими
-i18n_check.py --auto --lint     # + вичитка перекладів
+ukr-i18n --auto            # знайде всі українські локалі й порівняє з англійськими
+ukr-i18n --auto --lint     # + вичитка перекладів
 ```
 
 - **Формати:** i18next, vue-i18n, ICU MessageFormat (FormatJS, Angular, Flutter), gettext `.po`,
@@ -164,18 +170,18 @@ i18n_check.py --auto --lint     # + вичитка перекладів
 ## 🔢 ukr-data — українські дані
 
 ```bash
-$ ukr_data.py check 3652504575
+$ ukr-data check 3652504575
 РНОКПП (ІПН) 3652504575: ✔ правильний
   дата народження: 2000-01-01
   стать: чоловіча
 
-$ ukr_data.py gen person --seed 7 --json
+$ ukr-data gen person --seed 7 --json
 { "full_name": "Яковенко Ірина Максимівна", "birth_date": "1966-07-01", "rnokpp": "2428809649",
   "unzr": "19660701-95486", "phone": "+380 67 851 33 58", "iban": "UA213052990000166131860913909", … }
 
-$ ukr_data.py translit "Згорани, Юлія Щербак"          →  Zghorany, Yuliia Shcherbak
-$ ukr_data.py amount 1234.56                          →  Одна тисяча двісті тридцять чотири гривні 56 копійок
-$ ukr_data.py plural 24 файл файли файлів             →  24 файли
+$ ukr-data translit "Згорани, Юлія Щербак"          →  Zghorany, Yuliia Shcherbak
+$ ukr-data amount 1234.56                          →  Одна тисяча двісті тридцять чотири гривні 56 копійок
+$ ukr-data plural 24 файл файли файлів             →  24 файли
 ```
 
 - **Перевірка з розшифровкою:** РНОКПП (дата народження, стать), ЄДРПОУ, IBAN (МФО, банк), УНЗР,
@@ -201,7 +207,7 @@ $ ukr_data.py plural 24 файл файли файлів             →  24 ф�
 ```yaml
 repos:
   - repo: https://github.com/MaxKarasha/ukr-dev-kit
-    rev: v0.1.0
+    rev: v0.2.0
     hooks:
       - id: ukr-lint      # вичитка змінених файлів
       - id: ukr-i18n      # перевірка українських локалей
@@ -213,7 +219,7 @@ repos:
 - uses: actions/checkout@v5
   with:
     fetch-depth: 0
-- uses: MaxKarasha/ukr-dev-kit@v0.1.0
+- uses: MaxKarasha/ukr-dev-kit@v0.2.0
   with:
     level: warning      # error | warning | hint
     i18n: true
@@ -223,7 +229,7 @@ repos:
 
 - Вичитка, локалізація й дані працюють **повністю локально**: нічого нікуди не надсилається.
 - Озвучка через Gemini надсилає текст у Google Gemini API. Для конфіденційних текстів — `--engine holos`.
-- Ключ Gemini вводиться приховано у вашому терміналі (`ukr_voice.py setup gemini`) і зберігається з
+- Ключ Gemini вводиться приховано у вашому терміналі (`ukr-voice setup gemini`) і зберігається з
   правами `600`; також працює змінна `GEMINI_API_KEY`. Агент ключа не бачить.
 - Згенеровані РНОКПП, IBAN тощо — лише для тестів: випадковий номер може збігтися зі справжнім.
 
@@ -238,6 +244,7 @@ ukr-dev-kit/
 │   ├── ukr-proofread/     # SKILL.md · scripts/ukr_lint.py · rules/*.txt · references/
 │   ├── ukr-i18n/          # SKILL.md · scripts/i18n_check.py · references/
 │   └── ukr-data/          # SKILL.md · scripts/ukr_data.py · references/validators.md
+├── src/ukr_dev_kit/       # пакет PyPI: консольні команди поверх скриптів скілів
 ├── tests/                 # unittest, без мережі й залежностей
 ├── tools/                 # перевірка структури, валідаторів, рендер демо
 ├── action.yml             # GitHub Action

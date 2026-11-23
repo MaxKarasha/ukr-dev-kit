@@ -55,12 +55,12 @@ python3 skills/ukr-proofread/scripts/ukr_lint.py README.md CONTRIBUTING.md skill
 
 Claude Code кешує плагін за номером версії: без нової версії користувачі не отримають змін.
 
-1. Підніміть версію за [SemVer](https://semver.org/lang/uk/) в `.claude-plugin/plugin.json` і
-   `.claude-plugin/marketplace.json` (`tools/validate_skills.py` перевіряє, що вони однакові).
-2. Додайте розділ у `CHANGELOG.md`.
-3. Після злиття в `main` і зеленого CI: `git tag -a vX.Y.Z -m "…" && git push origin vX.Y.Z`,
-   потім `gh release create vX.Y.Z` з нотатками з CHANGELOG.
-4. Оновіть приклади `rev:` / `@vX.Y.Z` у README, якщо змінилася мажорна чи мінорна версія.
+1. `python3 tools/bump_version.py X.Y.Z` — версія за [SemVer](https://semver.org/lang/uk/) зміниться в маніфестах
+   плагіна, пакеті Python і скриптах скілів (CI перевіряє, що вона всюди однакова).
+2. Додайте розділ у `CHANGELOG.md`, оновіть `rev:` / `@vX.Y.Z` у прикладах README.
+3. Після злиття в `main` і зеленого CI: `git tag -a vX.Y.Z -m "…" && git push origin vX.Y.Z`.
+   Workflow `Release` сам перевірить тег і опублікує пакет на PyPI.
+4. `gh release create vX.Y.Z` з нотатками з CHANGELOG.
 
 ## Повідомлення про помилку
 

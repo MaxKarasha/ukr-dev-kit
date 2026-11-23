@@ -2,6 +2,20 @@
 
 Формат — [Keep a Changelog](https://keepachangelog.com/uk/1.1.0/), версії — [SemVer](https://semver.org/lang/uk/).
 
+## [0.2.0] — 2026-11-23
+
+### Додано
+
+- Пакет на PyPI: `pipx install ukr-dev-kit` дає команди `ukr-lint`, `ukr-i18n`, `ukr-data`, `ukr-voice`.
+  Код команд — ті самі скрипти скілів, без дублювання.
+- Автоматичний випуск на PyPI за тегом (Trusted Publishing) і перевірка збірки пакета в CI.
+- `tools/bump_version.py` — версія змінюється одразу в маніфестах плагіна, пакеті й скриптах.
+
+### Змінено
+
+- pre-commit хуки встановлюють пакет (`language: python`) — працюють і на Windows.
+- Мінімальна версія Python — 3.10.
+
 ## [0.1.0] — 2026-11-23
 
 Перший публічний випуск.
@@ -22,4 +36,5 @@
   людей і компаній; транслітерація КМУ № 55; числа й суми прописом; валідатори TypeScript, Python, C#.
 - Плагін Claude Code з хуком автовичитки, pre-commit хуки, GitHub Action, CI на Linux, macOS і Windows.
 
+[0.2.0]: https://github.com/MaxKarasha/ukr-dev-kit/releases/tag/v0.2.0
 [0.1.0]: https://github.com/MaxKarasha/ukr-dev-kit/releases/tag/v0.1.0

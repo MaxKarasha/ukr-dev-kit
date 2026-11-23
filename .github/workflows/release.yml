@@ -1,0 +1,36 @@
+name: Release
+
+# Випуск: tools/bump_version.py X.Y.Z → CHANGELOG → коміт → git tag vX.Y.Z && git push origin vX.Y.Z
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  pypi:
+    name: Публікація на PyPI
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/ukr-dev-kit/
+    permissions:
+      id-token: write          # Trusted Publishing — без токенів у секретах
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Тег відповідає версії пакета
+        run: |
+          python tools/bump_version.py --check
+          v=$(python -c "import re;print(re.search(r\"__version__ = '(.+)'\", open('src/ukr_dev_kit/__init__.py').read()).group(1))")
+          [ "v$v" = "$GITHUB_REF_NAME" ] || { echo "::error::тег $GITHUB_REF_NAME ≠ версії пакета $v"; exit 1; }
+      - name: Зібрати
+        run: |
+          python -m pip install --quiet build twine
+          python -m build
+          python -m twine check --strict dist/*
+      - name: Опублікувати
+        uses: pypa/gh-action-pypi-publish@release/v1
