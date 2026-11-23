@@ -10,6 +10,7 @@ from _paths import add_script_path
 add_script_path('ukr-voice')
 import gemini_tts as G  # noqa: E402
 import markup as M  # noqa: E402
+import subtitles as SUBS  # noqa: E402
 import ukr_voice as V  # noqa: E402
 
 
@@ -82,6 +83,40 @@ class GeminiBodyTest(unittest.TestCase):
 
     def test_aliases(self):
         self.assertEqual(G.resolve_model('lite'), 'gemini-3.8-flash-lite-tts')
+
+
+class SubtitlesTest(unittest.TestCase):
+    def test_align_keeps_original_text(self):
+        words = SUBS.words_from([('', 'Лінтер знайшов «на протязі» й «настройки».')])
+        heard = [(0.0, 0.5, 'Лінтр'), (0.5, 1.0, 'знайшов,'), (1.0, 1.2, 'на'), (1.2, 1.6, 'протязі'),
+                 (1.6, 1.7, 'є'), (1.7, 2.4, 'настройки.')]
+        SUBS.align(words, heard)
+        self.assertTrue(all(w.start >= 0 and w.end >= w.start for w in words))
+        self.assertEqual(words[1].start, 0.5)
+        cues = SUBS.build_cues(words)
+        self.assertEqual(cues[0].text, 'Лінтер знайшов «на протязі» й «настройки».')
+
+    def test_speakers_split_cues_and_formats(self):
+        words = SUBS.words_from([('Оля', 'Привіт!'), ('Тарас', 'Вітаю.')])
+        SUBS.proportional(words, 2.0)
+        cues = SUBS.build_cues(words)
+        self.assertEqual([c.speaker for c in cues], ['Оля', 'Тарас'])
+        vtt = SUBS.to_vtt(cues, speakers=True)
+        self.assertTrue(vtt.startswith('WEBVTT'))
+        self.assertIn('<v Тарас>Вітаю.', vtt)
+        srt = SUBS.to_srt(cues, speakers=True)
+        self.assertIn('00:00:00,000 --> ', srt)
+        self.assertIn('Оля: Привіт!', srt)
+
+    def test_long_text_wraps_and_splits(self):
+        words = SUBS.words_from([('', 'Це дуже довге речення для перевірки того, як субтитри переносяться на '
+                                      'другий рядок і діляться на кілька титрів, коли тексту забагато.')])
+        SUBS.proportional(words, 9.0)
+        cues = SUBS.build_cues(words)
+        self.assertGreater(len(cues), 1)
+        for c in cues:
+            self.assertTrue(all(len(line) <= 42 for line in c.text.split('\n')), c.text)
+            self.assertLessEqual(c.end - c.start, 6.0 + 1e-6)
 
 
 class CliHelpersTest(unittest.TestCase):

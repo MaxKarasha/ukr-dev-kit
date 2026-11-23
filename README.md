@@ -99,7 +99,7 @@ ukr-lint --help               # також ukr-i18n, ukr-data, ukr-voice
 |---|---|
 | <a href="https://github.com/MaxKarasha/ukr-dev-kit/raw/main/docs/samples/narrator.mp3"><img src="docs/assets/wave-narrator.png" width="320" alt="Оповідач"></a> | **Оповідач** — пресет `оповідач`, Gemini |
 | <a href="https://github.com/MaxKarasha/ukr-dev-kit/raw/main/docs/samples/promo.mp3"><img src="docs/assets/wave-promo.png" width="320" alt="Реклама"></a> | **Реклама** — пресет `реклама`, емоція й пауза з розмітки |
-| <a href="https://github.com/MaxKarasha/ukr-dev-kit/raw/main/docs/samples/dialog.mp3"><img src="docs/assets/wave-dialog.png" width="320" alt="Діалог"></a> | **Діалог** двома голосами одним запитом ([сценарій](docs/samples/dialog.txt)) |
+| <a href="https://github.com/MaxKarasha/ukr-dev-kit/raw/main/docs/samples/dialog.mp3"><img src="docs/assets/wave-dialog.png" width="320" alt="Діалог"></a> | **Діалог** двома голосами одним запитом ([сценарій](docs/samples/dialog.txt), [субтитри](docs/samples/dialog.vtt)) |
 | <a href="https://github.com/MaxKarasha/ukr-dev-kit/raw/main/docs/samples/offline.mp3"><img src="docs/assets/wave-offline.png" width="320" alt="Офлайн"></a> | **Офлайн** — HolosTTS на ноутбуці, без інтернету |
 
 ```bash
@@ -109,6 +109,7 @@ ukr-voice say "(захоплено) Нова версія вже тут! / *Шв
 ukr-voice dialog scene.txt -o scene.mp3 --split lines/    # діалог + кожна репліка окремо
 ukr-voice audition "Вітаємо!" -o picks/ --gender f        # одна фраза різними голосами
 ukr-voice check hi.mp3 --text "Привіт! Це перевірка."     # Whisper: що почуто й % збігу
+ukr-voice say "…" -o reel.mp3 --subs                       # + субтитри reel.srt і reel.vtt
 ```
 
 |  | Gemini TTS | HolosTTS |
@@ -122,7 +123,7 @@ ukr-voice check hi.mp3 --text "Привіт! Це перевірка."     # Whi
 
 **Що ще вміє:** 10 пресетів (оповідач, новини, реклама, казка, урок, подкаст, гід…) з налаштуваннями для
 обох рушіїв; режисерська розмітка — емоції `(радісно)`, паузи `/ // ///`, логічний наголос `*слово*`,
-ручний наголос `за+мок`; словник вимови для імен; кеш (повтор не коштує нічого); розбиття довгих текстів;
+ручний наголос `за+мок`; субтитри SRT/VTT з точним часом за словами; словник вимови для імен; кеш (повтор не коштує нічого); розбиття довгих текстів;
 вирівнювання гучності до −16 LUFS; вихід у mp3, wav, ogg, m4a, flac.
 
 ## ✍️ ukr-proofread — вичитка

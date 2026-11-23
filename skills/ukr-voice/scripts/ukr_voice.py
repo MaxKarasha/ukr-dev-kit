@@ -10,6 +10,8 @@
     ukr_voice.py audition "Фраза" -o picks/ [--gender f|m] [--voices a,b]   # одна фраза різними голосами
     ukr_voice.py voices [--engine holos]  |  presets
     ukr_voice.py check hi.mp3 --text "Привіт!"   # розбірливість через Whisper (якщо встановлено)
+    ukr_voice.py say "…" -o hi.mp3 --subs        # + субтитри hi.srt і hi.vtt (також для dialog)
+    ukr_voice.py subs video.mp3 --text "…"       # субтитри до готового аудіо
     ukr_voice.py status | stop                   # локальний синтез: що запущено / зупинити
 
 Рушій обирається сам (--engine auto): Gemini, якщо є ключ, інакше HolosTTS, якщо встановлено.
@@ -37,6 +39,7 @@ SKILL = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 import gemini_tts as G  # noqa: E402
 import markup as M  # noqa: E402
+import subtitles as SUBS  # noqa: E402
 
 __version__ = '0.2.0'
 DATA = os.environ.get('UKR_VOICE_HOME', os.path.expanduser('~/.local/share/ukr-voice'))
@@ -299,6 +302,8 @@ def cmd_say(a):
     if a.full_stress:
         job['light'] = False
     run_jobs([job], a.engine, a.model, not a.no_cache, a.raw)
+    if a.subs:
+        write_subs(a.o, [('', a.text)])
 
 
 def run_jobs(jobs: list, engine_req: str, model: str = None, cache: bool = True, raw: bool = False,
@@ -469,6 +474,8 @@ def cmd_dialog(a):
             whole = os.path.join(tmp, 'all.wav')
             concat_wavs([j['out'] for j in jobs], whole, a.gap)
         finish(whole, a.o)
+        if a.subs:
+            write_subs(a.o, lines)
         d = duration(a.o)
         say_ok(f'✓ {a.o}  ·  {len(lines)} {plural(len(lines), "репліка", "репліки", "реплік")}, '
                f'{len(speakers)} {plural(len(speakers), "голос", "голоси", "голосів")}' + (f'  ·  {d:.1f} с' if d else ''))
@@ -543,6 +550,35 @@ def norm_words(t: str) -> str:
     t = M.plain(t).lower().replace('́', '')
     t = re.sub(f"[{re.escape(chr(0x2bc))}’'`]", '', t)
     return ' '.join(re.sub(r'[^\w\s]', ' ', t).split())
+
+
+def write_subs(audio: str, lines: list, fmt: str = 'both', max_chars: int = 42, quiet: bool = False) -> None:
+    """Субтитри поруч з аудіо: lines — [(мовець, розмічений текст)]."""
+    exe = shutil.which('whisper-cli') or shutil.which('whisper-cpp')
+    formats = ('srt', 'vtt') if fmt == 'both' else (fmt,)
+    clean = [(sp, M.plain(t)) for sp, t in lines]
+    paths, method = SUBS.make(audio, clean, os.path.splitext(audio)[0], formats, (exe, whisper_model()),
+                              duration(audio), max_chars)
+    if not quiet:
+        note = '' if method == 'whisper' else ' — без Whisper час приблизний (brew install whisper-cpp для точного)'
+        say_ok(f'✓ субтитри: {", ".join(paths)} ({method}{note})')
+
+
+def cmd_subs(a):
+    if not os.path.isfile(a.audio):
+        die(f'немає файлу {a.audio}')
+    if a.script:
+        lines = parse_dialog(a.script)
+    elif a.text:
+        lines = [('', a.text)]
+    else:
+        die('вкажіть --text "…" або --script сценарій.txt')
+    base = os.path.splitext(a.o)[0] if a.o else os.path.splitext(a.audio)[0]
+    exe = shutil.which('whisper-cli') or shutil.which('whisper-cpp')
+    formats = ('srt', 'vtt') if a.format == 'both' else (a.format,)
+    paths, method = SUBS.make(a.audio, [(sp, M.plain(t)) for sp, t in lines], base, formats,
+                              (exe, whisper_model()), duration(a.audio), a.max_chars)
+    say_ok(f'✓ {", ".join(paths)} ({method})')
 
 
 def cmd_check(a):
@@ -675,6 +711,7 @@ def main(argv=None):
     s.add_argument('--pitch', type=float, help='HolosTTS: висота (0.85–1.15)')
     s.add_argument('--af', help='HolosTTS: додаткові фільтри ffmpeg')
     s.add_argument('--full-stress', action='store_true', help='HolosTTS: наголос і на односкладових словах')
+    s.add_argument('--subs', action='store_true', help='також субтитри .srt і .vtt поруч з аудіо')
     common(s)
     s = sub.add_parser('dialog', help='озвучити діалог кількома голосами')
     s.add_argument('script', help='.txt («Імʼя: репліка») або .json')
@@ -683,6 +720,7 @@ def main(argv=None):
     s.add_argument('--gap', type=float, default=0.0, help='пауза між блоками/репліками, с')
     s.add_argument('--split', metavar='DIR', help='також зберегти кожну репліку окремим файлом')
     s.add_argument('--split-format', default='mp3')
+    s.add_argument('--subs', action='store_true', help='також субтитри .srt і .vtt з іменами мовців')
     common(s)
     s = sub.add_parser('batch', help='багато файлів з JSON')
     s.add_argument('jobs')
@@ -702,6 +740,13 @@ def main(argv=None):
     s.add_argument('audio')
     s.add_argument('--text', help='очікуваний текст')
     s.add_argument('--min', type=float, default=0.0, help='код виходу 1, якщо збіг нижче (0–1)')
+    s = sub.add_parser('subs', help='субтитри SRT/VTT до готового аудіо')
+    s.add_argument('audio')
+    s.add_argument('--text', help='текст, що звучить (можна з розміткою)')
+    s.add_argument('--script', help='або сценарій діалогу «Імʼя: репліка»')
+    s.add_argument('-o', help='базова назва файлів субтитрів (типово — як в аудіо)')
+    s.add_argument('--format', choices=['srt', 'vtt', 'both'], default='both')
+    s.add_argument('--max-chars', type=int, default=42, help='символів у рядку титру')
     s = sub.add_parser('setup', help='налаштувати рушій')
     s.add_argument('what', choices=['gemini', 'holos'])
     s.add_argument('--force', action='store_true')
@@ -711,7 +756,7 @@ def main(argv=None):
     sub.add_parser('stop')
     a = ap.parse_args(argv)
     {'say': cmd_say, 'dialog': cmd_dialog, 'batch': cmd_batch, 'audition': cmd_audition, 'voices': cmd_voices,
-     'presets': cmd_presets, 'check': cmd_check, 'setup': cmd_setup, 'doctor': cmd_doctor, 'status': cmd_status,
+     'presets': cmd_presets, 'check': cmd_check, 'subs': cmd_subs, 'setup': cmd_setup, 'doctor': cmd_doctor, 'status': cmd_status,
      'stop': cmd_stop}[a.cmd](a)
 
 
