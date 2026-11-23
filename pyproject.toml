@@ -52,7 +52,7 @@ packages = ["src/ukr_dev_kit"]
 
 [tool.hatch.build.targets.sdist]
 include = ["src/", "skills/", "tests/", "docs/PYPI.md", "README.md", "CHANGELOG.md", "LICENSE", "pyproject.toml"]
-exclude = ["**/__pycache__"]
+exclude = ["**/__pycache__", "tests/corpus"]   # корпус — під CC BY-SA, не MIT
 
 [tool.hatch.build]
 exclude = ["**/__pycache__", "**/*.pyc"]

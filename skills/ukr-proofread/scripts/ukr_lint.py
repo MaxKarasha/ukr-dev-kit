@@ -43,6 +43,7 @@ CATEGORY_UK = {'surzhyk': 'суржик', 'calque': 'калька', 'style': 'п
 CYR = 'А-Яа-яЁёІіЇїЄєҐґ'
 UK_ONLY = 'ІіЇїЄєҐґ'
 RU_ONLY = 'ЫыЭэЪъЁё'
+ARCHAIC = 'ѢѣѤѥѦѧѪѫѴѵѲѳꙖꙗ'                  # дореформені й давньоруські літери
 APOS = "ʼ’'‘`ʹ′"
 HAS_CYR = re.compile(f'[{CYR}]')
 LB = f"(?<![\\w{APOS}-])"
@@ -184,7 +185,7 @@ def load_rules(rules_dir: str = RULES_DIR) -> list:
 # ════════════════════════════════════ вбудовані перевірки ════════════════════════════════════
 L2C = dict(zip('aceiopxyABCEHIKMOPTXïÏ', 'асеіорхуАВСЕНІКМОРТХїЇ'))
 C2L = {v: k for k, v in L2C.items()}
-WORD_MIXED = re.compile(f"[A-Za-zïÏ{CYR}]+")
+WORD_MIXED = re.compile(f"[A-Za-zïÏ{CYR}{ARCHAIC}]+")
 LAT = re.compile('[A-Za-zïÏ]')
 CYR_RE = re.compile(f'[{CYR}]')
 
@@ -203,7 +204,8 @@ BUILTIN_DOC = {
     'typography/dash': ('warning', 'Між словами — тире «—» з пробілами, а не дефіс «-».'),
     'typography/en-dash': ('hint', 'Між словами в українському тексті — довге тире «—».'),
     'typography/ellipsis': ('hint', 'Три крапки — один символ «…».'),
-    'typography/space-before': ('error', 'Перед комою, крапкою з комою, двокрапкою, знаком оклику чи питання пробілу немає.'),
+    'typography/space-before': ('error', 'Перед комою, знаком оклику чи питання пробілу немає. (Пробіл перед « : » і « ; » '
+                                'у бібліографічних записях вимагає ДСТУ 8302 — його не чіпаємо.)'),
     'typography/space-after': ('warning', 'Після коми чи крапки з комою потрібен пробіл.'),
     'typography/double-space': ('hint', 'Подвійний пробіл усередині речення.'),
     'typography/repeat': ('warning', 'Слово повторено двічі поспіль — схоже на описку.'),
@@ -236,7 +238,7 @@ def _issues_builtin(text: str, cfg: Config, code: bool) -> Iterator[Issue]:
                 fix = None
             yield Issue(m.start(), m.end(), 'error', 'alphabet/mixed',
                         f'«{w}» змішує латиницю й кирилицю', fix or '', fix)
-        elif cyr and re.search(f'[{RU_ONLY}]', w):
+        elif cyr and re.search(f'[{RU_ONLY}]', w) and not re.search(f'[{ARCHAIC}]|[ъЪ]$', w):
             yield Issue(m.start(), m.end(), 'error', 'alphabet/russian-letter',
                         f'«{w}»: літера {", ".join(sorted(set(re.findall(f"[{RU_ONLY}]", w))))} — не з української абетки')
 
@@ -272,7 +274,8 @@ def _issues_builtin(text: str, cfg: Config, code: bool) -> Iterator[Issue]:
             yield Issue(m.start(), m.end(), 'hint', 'typography/ellipsis', '«...» → «…»', '…', '…')
 
     # ── пробіли ──
-    for m in re.finditer(f'(?<=[{CYR}»)])[ \t]+(?=[,;:!?](?:\\s|$|[»)”"]))', text):
+    # лише перед , ! ? — пробіл перед « : » і « ; » вимагає бібліографічний стандарт ДСТУ 8302
+    for m in re.finditer(f'(?<=[{CYR}»)])[ \t]+(?=[,!?](?:\\s|$|[»)”"]))', text):
         yield Issue(m.start(), m.end(), 'error', 'typography/space-before', 'зайвий пробіл перед розділовим знаком',
                     '', '')
     for m in re.finditer(f'(?<=[{CYR}])([,;])(?=[{CYR}])', text):
@@ -317,6 +320,39 @@ def is_russian(text: str) -> bool:
     return bool(re.search(f'[{RU_ONLY}]', text)) and not re.search(f'[{UK_ONLY}]', text)
 
 
+_SENTENCE = re.compile(r'[^\n.!?]+(?:[.!?]+|$)', re.M)
+
+
+_RU_ENDING = re.compile(r'(?<![\w-])[а-яё]{2,}(?:ая|яя|ой|ый|ые|ие|ии|ого|его)(?![\w-])', re.I)
+_RU_AND = re.compile(r'(?<![\w-])и(?![\w-])')
+
+
+def looks_russian(s: str) -> bool:
+    """Речення схоже на російське: немає і/ї/є/ґ, і є ы/э/ъ/ё, сполучник «и» або кілька типових
+    російських закінчень (-ая, -ой, -ии, -ый…). Текст у [квадратних дужках] не враховується."""
+    s = re.sub(r'\[[^\]]*(?:\]|$)', ' ', s)
+    if re.search(f'[{UK_ONLY}ʼ’\']', s) or not HAS_CYR.search(s):
+        return False
+    if re.search(f'[{RU_ONLY}]', s) or _RU_AND.search(s):
+        return True
+    return len(_RU_ENDING.findall(s)) >= 2
+
+
+def foreign_spans(text: str) -> list:
+    """Речення російською чи в дореформеній орфографії всередині українського тексту (цитати,
+    бібліографія), а також цитати в «ялинках» із російськими літерами — їх не перевіряємо:
+    це не помилки, а інша мова."""
+    spans = []
+    for m in _SENTENCE.finditer(text):
+        s = m.group()
+        if looks_russian(s) or re.search(f'[{ARCHAIC}]', s):
+            spans.append((m.start(), m.end()))
+    for m in re.finditer(r'«[^«»\n]{1,80}»', text):
+        if re.search(f'[{RU_ONLY}{ARCHAIC}]', m.group()):
+            spans.append((m.start(), m.end()))
+    return spans
+
+
 # ════════════════════════════════════ ядро ════════════════════════════════════
 class Linter:
     def __init__(self, cfg: Optional[Config] = None, rules: Optional[list] = None):
@@ -332,6 +368,7 @@ class Linter:
         if is_russian(masked):
             return [Issue(0, min(len(text), 40), 'hint', 'alphabet/russian-text', BUILTIN_DOC['alphabet/russian-text'][1])]
         out = list(_issues_builtin(masked, self.cfg, code))
+        foreign = foreign_spans(masked)
         for r in self.rules:
             for m in r.regex.finditer(masked):
                 if r.suggestion.startswith('='):        # шаблон заміни → безпечне виправлення
@@ -348,6 +385,8 @@ class Linter:
                 continue
             frag = text[i.start:i.end]
             if frag.lower() in self.allow or MASK in masked[i.start:i.end]:
+                continue
+            if any(a <= i.start < b for a, b in foreign):
                 continue
             i.level = self.cfg.levels.get(i.rule, i.level)
             res.append(i)

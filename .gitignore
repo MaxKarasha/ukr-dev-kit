@@ -11,3 +11,6 @@ venv/
 # озвучка, згенерована під час експериментів (зразки для README лежать у docs/samples)
 *.wav
 !docs/samples/*.wav
+
+# результати claude plugin eval (зведення — у evals/RESULTS.md)
+evals/results/

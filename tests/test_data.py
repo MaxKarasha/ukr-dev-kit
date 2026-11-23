@@ -96,6 +96,25 @@ class TranslitTest(unittest.TestCase):
         self.assertEqual(D.slugify('Київ — столиця України!'), 'kyiv-stolytsia-ukrainy')
 
 
+class VocativeTest(unittest.TestCase):
+    def test_names(self):
+        cases = {'Тарас': 'Тарасе', 'Іван': 'Іване', 'Олег': 'Олеже', 'Андрій': 'Андрію', 'Василь': 'Василю',
+                 'Петро': 'Петре', 'Павло': 'Павле', 'Юрко': 'Юрку', 'Сашко': 'Сашку', 'Микола': 'Миколо',
+                 'Ілля': 'Ілле', 'Олена': 'Олено', 'Марія': 'Маріє', 'Ольга': 'Ольго', 'Оля': 'Олю',
+                 'Леся': 'Лесю', 'Любов': 'Любове', 'Ігор': 'Ігоре', 'Олександр': 'Олександре',
+                 'Анна-Марія': 'Анно-Маріє', 'ОЛЕНА': 'ОЛЕНО'}
+        for nom, voc in cases.items():
+            with self.subTest(nom=nom):
+                self.assertEqual(D.vocative_word(nom), voc)
+
+    def test_full_names(self):
+        self.assertEqual(D.vocative('Олена Петрівна'), 'Олено Петрівно')
+        self.assertEqual(D.vocative('Шевченко Тарас Григорович'), 'Тарасе Григоровичу')
+        self.assertEqual(D.vocative('Андрій Ілліч', formal=True), 'пане Андрію Іллічу')
+        self.assertEqual(D.vocative('Ілля', formal=True), 'пане Ілле')
+        self.assertEqual(D.vocative('Наталія Андріївна', formal=True), 'пані Наталіє Андріївно')
+
+
 class NumbersTest(unittest.TestCase):
     def test_words(self):
         self.assertEqual(D.number_words(0), 'нуль')

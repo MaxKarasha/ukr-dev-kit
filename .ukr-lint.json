@@ -3,7 +3,8 @@
   "ignore": [
     "tests/fixtures/**",
     "skills/ukr-proofread/rules/*.txt",
-    "docs/demo/**"
+    "docs/demo/**",
+    "tests/corpus/**"
   ],
   "allow": [
     "HolosTTS",

@@ -11,6 +11,7 @@
     ukr_data.py words 2021 [--gender f|n]        # дві тисячі двадцять один
     ukr_data.py amount 1234.56 [--currency UAH|USD|EUR] [--kop-words]
     ukr_data.py plural 21 файл файли файлів      # 21 файл
+    ukr_data.py vocative "Олена Петрівна"         # Олено Петрівно (кличний відмінок для звертань)
 
 Генеровані значення мають правильні контрольні суми, але придатні ЛИШЕ для тестів:
 випадковий номер може збігтися з чиїмось справжнім.
@@ -377,6 +378,76 @@ def amount_words(value: str, currency: str = 'UAH', kop_words: bool = False, cap
     return text[0].upper() + text[1:] if capital else text
 
 
+# ════════════════════════════════════ кличний відмінок ════════════════════════════════════
+VOC_EXCEPT = {  # імена, що не підпадають під загальні правила
+    'олег': 'Олеже', 'ілля': 'Ілле', 'любов': 'Любове', 'лев': 'Леве', 'кузьма': 'Кузьмо',
+    'нінель': 'Нінель', 'рахіль': 'Рахіль', 'ассоль': 'Ассоль',
+}
+FEMININE_CONSONANT = {'любов', 'нінель', 'рахіль', 'ассоль', 'юдиф', 'есфір'}
+_VOWELS = 'аеєиіїоуюя'
+
+
+def _keep_case(src: str, res: str) -> str:
+    if src.isupper() and len(src) > 1:
+        return res.upper()
+    return res[:1].upper() + res[1:] if src[:1].isupper() else res
+
+
+def vocative_word(word: str, kind: str = 'auto') -> str:
+    """Кличний відмінок імені чи по батькові: Тарас → Тарасе, Олена → Олено, Андрій → Андрію,
+    Іванович → Івановичу, Петрівна → Петрівно. kind: auto | name | patronymic."""
+    w = word.strip()
+    lo = w.lower().replace("'", 'ʼ').replace('’', 'ʼ')
+    if not lo or not re.fullmatch(r"[а-яіїєґʼ-]+", lo):
+        return w
+    if '-' in lo:                                   # подвійні імена: Анна-Марія → Анно-Маріє
+        return '-'.join(vocative_word(part, kind) for part in w.split('-'))
+    if kind in ('auto', 'patronymic'):
+        if re.search(r'(ович|евич|йович|ич|лліч)$', lo):
+            return _keep_case(w, lo + 'у')
+        if re.search(r'(івна|ївна|овна)$', lo):
+            return _keep_case(w, lo[:-1] + 'о')
+    if lo in VOC_EXCEPT:
+        return _keep_case(w, VOC_EXCEPT[lo])
+    if lo in FEMININE_CONSONANT:
+        return w
+    if lo.endswith('ія'):                           # Марія → Маріє, Наталія → Наталіє
+        return _keep_case(w, lo[:-1] + 'є')
+    if lo.endswith('я'):                            # Оля → Олю, Галя → Галю, Леся → Лесю
+        return _keep_case(w, lo[:-1] + 'ю')
+    if lo.endswith('а'):                            # Олена → Олено, Микола → Миколо
+        return _keep_case(w, lo[:-1] + 'о')
+    if re.search(r'(ко|ик|чик|сик)$', lo):         # Юрко → Юрку, Сашко → Сашку, Юрчик → Юрчику
+        return _keep_case(w, (lo[:-1] if lo.endswith('о') else lo) + 'у')
+    if lo.endswith('о'):                            # Петро → Петре, Павло → Павле
+        return _keep_case(w, lo[:-1] + 'е')
+    if lo.endswith('й'):                            # Андрій → Андрію
+        return _keep_case(w, lo[:-1] + 'ю')
+    if lo.endswith('ь'):                            # Василь → Василю
+        return _keep_case(w, lo[:-1] + 'ю')
+    if lo[-1] in 'кгх':                             # Марк → Марку
+        return _keep_case(w, lo + 'у')
+    if lo[-1] not in _VOWELS:                       # Тарас → Тарасе, Ігор → Ігоре
+        return _keep_case(w, lo + 'е')
+    return w
+
+
+def vocative(full: str, formal: bool = False) -> str:
+    """«Олена Петрівна» → «Олено Петрівно»; «Шевченко Тарас Григорович» → «Тарасе Григоровичу»
+    (прізвище в звертанні зазвичай опускають). formal=True додає «пане/пані»."""
+    words = full.split()
+    if len(words) == 3 and re.search(r'(ович|евич|ич|лліч|івна|ївна|овна)$', words[2].lower()):
+        words = words[1:]                           # Прізвище Імʼя По батькові → Імʼя По батькові
+    out = [vocative_word(w) for w in words]
+    if formal:
+        fem = bool(re.search(r'(івна|ївна|овна)$', words[-1].lower())) or \
+            (words[0].lower().endswith(('а', 'я')) and words[0].lower() not in
+             {'микола', 'ілля', 'сава', 'лука', 'кузьма', 'хома', 'ярема', 'микита', 'фома'}) or \
+            words[0].lower() in FEMININE_CONSONANT
+        out.insert(0, 'пані' if fem else 'пане')
+    return ' '.join(out)
+
+
 # ════════════════════════════════════ тестові люди й компанії ════════════════════════════════════
 MALE = {  # імʼя → (по батькові чол., жін.)
     'Олександр': ('Олександрович', 'Олександрівна'), 'Андрій': ('Андрійович', 'Андріївна'),
@@ -479,6 +550,9 @@ def main(argv: Optional[list] = None) -> int:
     s.add_argument('--currency', default='UAH', choices=list(CURRENCIES))
     s.add_argument('--kop-words', action='store_true', help='копійки теж словами')
     s.add_argument('--lower', action='store_true')
+    s = sub.add_parser('vocative', help='кличний відмінок для звертання')
+    s.add_argument('name', nargs='+', help='імʼя, імʼя й по батькові або повне ПІБ')
+    s.add_argument('--formal', action='store_true', help='додати «пане/пані»')
     s = sub.add_parser('plural', help='форма слова після числа')
     s.add_argument('n', type=int)
     s.add_argument('forms', nargs=3, metavar=('ONE', 'FEW', 'MANY'))
@@ -542,6 +616,9 @@ def main(argv: Optional[list] = None) -> int:
         except ValueError as e:
             print(f'ukr-data: {e}', file=sys.stderr)
             return 2
+        return 0
+    if a.cmd == 'vocative':
+        out(vocative(' '.join(a.name), a.formal))
         return 0
     if a.cmd == 'plural':
         print(f'{a.n} {plural_form(a.n, *a.forms)}')
