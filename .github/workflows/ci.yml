@@ -53,3 +53,28 @@ jobs:
         run: python tools/check_validators.py --require-all
       - name: ukr-lint на власній документації
         run: python skills/ukr-proofread/scripts/ukr_lint.py --format github README.md CONTRIBUTING.md CHANGELOG.md skills/*/SKILL.md skills/*/references
+
+  action:
+    name: GitHub Action (самоперевірка)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: ukr-dev-kit як Action
+        uses: ./
+        with:
+          paths: README.md CONTRIBUTING.md skills/ukr-voice/SKILL.md
+          i18n: 'false'
+      - name: Action знаходить помилки (очікуємо падіння на навмисному прикладі)
+        id: bad
+        continue-on-error: true
+        uses: ./
+        with:
+          paths: tests/fixtures/bad.md
+          i18n: 'false'
+      - name: Перевірити, що помилки знайдено
+        if: steps.bad.outcome != 'failure'
+        run: |
+          echo "::error::Action мала впасти на tests/fixtures/bad.md"
+          exit 1
