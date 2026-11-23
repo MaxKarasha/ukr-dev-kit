@@ -51,6 +51,17 @@ python3 tools/check_validators.py        # потрібні Node 22+ і .NET д�
 python3 skills/ukr-proofread/scripts/ukr_lint.py README.md CONTRIBUTING.md skills/*/SKILL.md skills/*/references
 ```
 
+## Випуск нової версії
+
+Claude Code кешує плагін за номером версії: без нової версії користувачі не отримають змін.
+
+1. Підніміть версію за [SemVer](https://semver.org/lang/uk/) в `.claude-plugin/plugin.json` і
+   `.claude-plugin/marketplace.json` (`tools/validate_skills.py` перевіряє, що вони однакові).
+2. Додайте розділ у `CHANGELOG.md`.
+3. Після злиття в `main` і зеленого CI: `git tag -a vX.Y.Z -m "…" && git push origin vX.Y.Z`,
+   потім `gh release create vX.Y.Z` з нотатками з CHANGELOG.
+4. Оновіть приклади `rev:` / `@vX.Y.Z` у README, якщо змінилася мажорна чи мінорна версія.
+
 ## Повідомлення про помилку
 
 Додайте вхідний текст чи файл, команду й те, що ви очікували побачити. Для озвучки — рушій
