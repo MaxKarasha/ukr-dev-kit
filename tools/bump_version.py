@@ -15,7 +15,7 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PY_FILES = ['src/ukr_dev_kit/__init__.py', 'skills/ukr-proofread/scripts/ukr_lint.py',
             'skills/ukr-i18n/scripts/i18n_check.py', 'skills/ukr-data/scripts/ukr_data.py',
-            'skills/ukr-voice/scripts/ukr_voice.py']
+            'skills/ukr-voice/scripts/ukr_voice.py', 'skills/ukr-humanize/scripts/ukr_ai_tells.py']
 JSON_FILES = {'.claude-plugin/plugin.json': ('version',), '.claude-plugin/marketplace.json': ('plugins', 0, 'version')}
 PY_RX = re.compile(r"^__version__ = '([^']+)'", re.M)
 

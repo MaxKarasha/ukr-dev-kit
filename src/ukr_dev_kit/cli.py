@@ -48,3 +48,7 @@ def data() -> NoReturn:
 
 def voice() -> NoReturn:
     _run('ukr-voice', 'ukr_voice')
+
+
+def ai_tells() -> NoReturn:
+    _run('ukr-humanize', 'ukr_ai_tells')

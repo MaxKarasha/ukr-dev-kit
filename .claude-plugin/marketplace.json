@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "ukr-dev-kit",
-  "description": "Українська мова для AI-агентів: озвучка, вичитка, локалізація, дані.",
+  "description": "Українська мова для AI-агентів: озвучка, вичитка, текст без ШІ-стилю, локалізація, дані.",
   "owner": {
     "name": "Maksym Karasha",
     "url": "https://github.com/MaxKarasha"
@@ -9,13 +9,20 @@
   "plugins": [
     {
       "name": "ukr-dev-kit",
-      "description": "Озвучка українською (Gemini TTS / HolosTTS), вичитка суржику й типографіки, локалізація (множина, формати, перевірка локалей), українські дані (РНОКПП, ЄДРПОУ, IBAN, УНЗР, транслітерація, сума прописом).",
+      "description": "Озвучка українською (Gemini TTS / HolosTTS), вичитка суржику й типографіки, прибирання ШІ-стилю з текстів, локалізація (множина, формати, перевірка локалей), українські дані (РНОКПП, ЄДРПОУ, IBAN, УНЗР, транслітерація, сума прописом).",
       "source": "./",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "category": "productivity",
       "license": "MIT",
       "homepage": "https://github.com/MaxKarasha/ukr-dev-kit",
-      "tags": ["ukrainian", "tts", "i18n", "proofreading", "localization"]
+      "tags": [
+        "ukrainian",
+        "tts",
+        "i18n",
+        "proofreading",
+        "localization",
+        "humanizer"
+      ]
     }
   ]
 }

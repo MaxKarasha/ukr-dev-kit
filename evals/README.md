@@ -15,6 +15,7 @@ claude plugin eval . --case data-rnokpp --runs 1 --ablation none --allow-tools "
 |---|---|
 | `proofread-ui-texts` | вичитка текстів інтерфейсу: суржик, кальки, типографіка |
 | `proofread-english-ignored` | негативний: англійський текст не вмикає українські скіли |
+| `humanize-blog-post` | прибирання ШІ-стилю з абзацу без втрати фактів |
 | `i18n-plurals-i18next` | форми множини one/few/many/other для i18next |
 | `data-rnokpp` | перевірка РНОКПП і розшифровка дати народження |
 | `data-amount-words` | сума прописом з правильним родом |

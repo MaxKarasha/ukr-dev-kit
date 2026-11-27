@@ -5,14 +5,15 @@ build-backend = "hatchling.build"
 [project]
 name = "ukr-dev-kit"
 dynamic = ["version"]
-description = "Українська мова для розробників і AI-агентів: вичитка суржику й типографіки, перевірка локалізації, українські дані (РНОКПП, ЄДРПОУ, IBAN), озвучка."
+description = "Українська мова для розробників і AI-агентів: вичитка суржику й типографіки, прибирання ШІ-стилю, перевірка локалізації, українські дані (РНОКПП, ЄДРПОУ, IBAN), озвучка."
 readme = "docs/PYPI.md"
 requires-python = ">=3.10"
 license = "MIT"
 license-files = ["LICENSE"]
 authors = [{ name = "Maksym Karasha" }]
 keywords = ["ukrainian", "linter", "proofreading", "surzhyk", "i18n", "l10n", "localization", "tts",
-            "rnokpp", "edrpou", "iban", "transliteration", "claude-code", "agent-skills"]
+            "rnokpp", "edrpou", "iban", "transliteration", "claude-code", "agent-skills",
+            "humanizer", "ai-writing"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Environment :: Console",
@@ -40,6 +41,7 @@ ukr-lint = "ukr_dev_kit.cli:lint"
 ukr-i18n = "ukr_dev_kit.cli:i18n"
 ukr-data = "ukr_dev_kit.cli:data"
 ukr-voice = "ukr_dev_kit.cli:voice"
+ukr-ai-tells = "ukr_dev_kit.cli:ai_tells"
 
 [tool.hatch.version]
 path = "src/ukr_dev_kit/__init__.py"

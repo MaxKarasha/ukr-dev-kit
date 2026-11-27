@@ -2,6 +2,19 @@
 
 Формат — [Keep a Changelog](https://keepachangelog.com/uk/1.1.0/), версії — [SemVer](https://semver.org/lang/uk/).
 
+## [0.3.0] — 2026-11-27
+
+### Додано
+
+- **ukr-humanize** — прибирання ШІ-стилю з українських текстів. 26 шаблонів з українськими прикладами
+  (адаптація [humanizer](https://github.com/blader/humanizer), MIT), українська специфіка: граматичне тире
+  проти тире-звʼязки, «ялинки», дієприслівникові хвости, кальки на кшталт «може похвалитися».
+  Шар для художнього тексту за дослідженням StoryScope (arXiv:2604.03136).
+- Сканер `ukr-ai-tells`: 70+ словникових ознак (`rules/tells.txt`) і структурні звички — тире-звʼязки,
+  Title Case і емодзі в заголовках, жирні мітки, однакові початки й рівна довжина речень, шаблонні розділи;
+  щільність на 1000 слів, `--format json`, `--max-score` для CI. Команда `ukr-ai-tells` у пакеті PyPI.
+- Тести сканера, зокрема на людському корпусі (щільність < 6), і eval-кейс `humanize-blog-post`.
+
 ## [0.2.0] — 2026-11-23
 
 ### Додано
@@ -44,5 +57,6 @@
   людей і компаній; транслітерація КМУ № 55; числа й суми прописом; валідатори TypeScript, Python, C#.
 - Плагін Claude Code з хуком автовичитки, pre-commit хуки, GitHub Action, CI на Linux, macOS і Windows.
 
+[0.3.0]: https://github.com/MaxKarasha/ukr-dev-kit/releases/tag/v0.3.0
 [0.2.0]: https://github.com/MaxKarasha/ukr-dev-kit/releases/tag/v0.2.0
 [0.1.0]: https://github.com/MaxKarasha/ukr-dev-kit/releases/tag/v0.1.0
