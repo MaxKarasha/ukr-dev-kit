@@ -48,7 +48,7 @@ class LexiconTest(unittest.TestCase):
 
     def test_technical_unique_is_fine(self):
         self.assertNotIn('вражаючий', keys('Бери кількість унікальних користувачів за тиждень.'))
-        self.assertIn('вражаючий', keys('Це унікальний досвід.'))
+        self.assertIn('вражаючий', keys('Це унікальний досвід. Давайте розберемося.'))
 
     def test_skips_code(self):
         text = '```\n// Варто зазначити: це не просто код — це тест\n```\nЗвичайне речення.'
@@ -77,6 +77,43 @@ class StructureTest(unittest.TestCase):
         text = 'ну таке. замовив у пт, привезли в середу, коробка мокра. дзвонив двічі — ніхто не бере. жах.'
         fs, words = ukr_ai_tells.scan(text, rules=RULES)
         self.assertEqual(ukr_ai_tells.summarize(fs, words)['verdict'], 'слідів ШІ-стилю майже немає')
+
+
+class Calibration2026Test(unittest.TestCase):
+    def test_placeholders_and_markup_by_channel(self):
+        text = "Шановний [Ім'я]! Знижка **10 %** діє до [дата]. Див. [наш сайт](https://x.ua)."
+        fs, _ = ukr_ai_tells.scan(text, rules=RULES, channel='email')
+        ks = [f.key for f in fs]
+        self.assertIn('placeholder', ks)
+        self.assertIn('markup-in-plain', ks)
+        fs, _ = ukr_ai_tells.scan(text, rules=RULES, channel='markdown')
+        self.assertNotIn('markup-in-plain', [f.key for f in fs])
+        # посилання [текст](url) — не заглушка
+        self.assertNotIn('placeholder', keys('Див. [документацію](https://x.ua) і [README](README.md).'))
+
+    def test_label_dash(self):
+        text = '- **Діагностика** — визначаємо несправність\n- **Ремонт** — міняємо деталь\n- **Гарантія** — 12 місяців\n'
+        self.assertIn('label-dash', keys(text))
+
+    def test_conclusion_heading_is_strong(self):
+        fs, _ = ukr_ai_tells.scan('## Висновок\n\nОтже, все добре.', rules=RULES)
+        self.assertEqual(next(f.strength for f in fs if f.key == 'conclusion-heading'), 'strong')
+
+    def test_title_case_is_weak_now(self):
+        fs, _ = ukr_ai_tells.scan('# Як Ми Перейшли На Монорепозиторій\n\nТекст.', rules=RULES)
+        self.assertEqual(next(f.strength for f in fs if f.key == 'title-case'), 'weak')
+
+    def test_isolated_weak_word_is_dropped(self):
+        self.assertEqual(keys('Це ключове слово в запиті.'), [])
+
+    def test_human_signals_reported(self):
+        ukr_ai_tells.scan('Привіт, Олено - надсилаю звіт. Дякую за iнформацію.', rules=RULES)
+        hs = ukr_ai_tells.scan.human_signals
+        self.assertTrue(any('дефіс' in h for h in hs))
+        self.assertTrue(any('латинські' in h for h in hs))
+
+    def test_why_choose_us(self):
+        self.assertIn('чому-обирають-нас', keys('## Чому обирають нас\n\nМи найкращі. Чекаємо на вас!'))
 
 
 class CorpusTest(unittest.TestCase):

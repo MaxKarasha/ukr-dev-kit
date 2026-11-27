@@ -21,7 +21,7 @@ import statistics
 import sys
 from dataclasses import asdict, dataclass
 
-__version__ = '0.3.0'
+__version__ = '0.4.0'
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 RULES_FILE = os.path.join(os.path.dirname(HERE), 'rules', 'tells.txt')
@@ -116,11 +116,11 @@ def prose_lines(text):
             in_code = not in_code
             out.append('')
             continue
-        if in_code or raw.startswith('    ') and not LIST_ITEM.match(raw):
+        if in_code or raw.startswith('    ') and not LIST_ITEM.match(raw) or re.match(r'^\s*</?[a-zA-Z!]', raw):
             out.append('')
             continue
         s = re.sub(r'`[^`]*`', ' ', raw)
-        s = re.sub(r'\]\([^)]*\)', ']', s)
+        s = re.sub(r'!?\[([^\]]*)\]\([^)]*\)', r'\1', s)       # посилання й картинки → лише текст
         s = re.sub(r'https?://\S+', ' ', s)
         out.append(s)
     return out
@@ -155,7 +155,14 @@ def sentences(text):
     return [s.strip() for s in SENT_END.split(text) if WORD.search(s)]
 
 
-def scan(text, path='<текст>', rules=None):
+PLACEHOLDER = re.compile(r"\[(?:[А-ЯІЇЄҐ]|[A-Z])[^\[\]\n]{1,28}\](?!\()|\[[а-яіїєґ][а-яіїєґʼ’' ]{1,28}\](?!\()")  # ukr-lint-disable-line
+LABEL_DASH = re.compile(r'^\s*(?:[-*+]|\d+[.)])\s+(?:\*\*[^*]{1,50}\*\*|[^—–:]{1,40}?)\s[—–]\s\S')
+HYPHEN_AS_DASH = re.compile(r'[а-яіїєґ,] - [а-яіїєґ]', re.I)
+LATIN_IN_CYR = re.compile(r'(?=\w*[А-Яа-яІіЇїЄєҐґ])(?=\w*[a-zA-Z])\b\w+\b')
+PLAIN_CHANNELS = {'email', 'sms', 'instagram', 'facebook', 'linkedin', 'plain', 'messenger'}
+
+
+def scan(text, path='<текст>', rules=None, channel='markdown'):
     rules = rules if rules is not None else load_rules()
     lines = prose_lines(text)
     findings = []
@@ -205,12 +212,13 @@ def scan(text, path='<текст>', rules=None):
         ws = WORD.findall(re.sub(r'\([^)]*\)', ' ', bare))          # без дужок: там зазвичай імена й абревіатури
         caps = [w for w in ws[1:] if CYR_WORD.fullmatch(w)]
         if len(ws) >= 4 and len(caps) >= 2 and len(caps) >= (len(ws) - 1) * 0.6:
-            add(ln, 'title-case', 'strong', '20', title,
-                'Кожне слово заголовка з великої (Title Case) — англійська звичка. Українською з великої лише перше слово й власні назви.')
+            add(ln, 'title-case', 'weak', '20', title,
+                'Title Case — англійська звичка, але у 2026 частіше людська (SEO, переклад), ніж ШІ. Виправ як стиль: '
+                'з великої лише перше слово й власні назви.')
         if EMOJI.search(title):
             emoji_heads.append((ln, title))
         if CONCLUSION_HEADINGS.match(bare.strip(' :.')):
-            add(ln, 'conclusion-heading', 'medium', '13', title,
+            add(ln, 'conclusion-heading', 'strong' if re.match(r'(?i)висно|підсум', bare.strip()) else 'medium', '13', title,
                 f'Шаблонний розділ «{bare.strip()}» (як «Висновок», «Ключові переваги», «Виклики та перспективи»). '
                 'Підсумок, що повторює текст, прибери; закінчи останнім фактом. Перелік переваг дай змістовим заголовком.')
 
@@ -267,9 +275,46 @@ def scan(text, path='<текст>', rules=None):
     lens = [len(WORD.findall(snt)) for _, snt in all_sents]
     if len(lens) >= 8:
         cv = statistics.pstdev(lens) / statistics.mean(lens)
-        if cv < 0.35:
+        if cv < 0.45:                       # у людей ≈ 0,65, у GPT-4o / Llama ≈ 0,40–0,44 (корпус HAP-E)
             add(all_sents[0][0], 'uniform-length', 'weak', '7', f'{len(lens)} речень, у середньому {statistics.mean(lens):.0f} слів, варіація {cv:.2f}',
                 'Речення майже однакової довжини по всьому тексту. Живий текст чергує короткі й довгі.')
+    para_lens = [len(WORD.findall(s)) for ln, s, k in prose if k == 'para']
+    if len(para_lens) >= 5 and statistics.mean(para_lens) > 15:
+        pcv = statistics.pstdev(para_lens) / statistics.mean(para_lens)
+        if pcv < 0.3:
+            add(prose[0][0], 'uniform-paragraphs', 'weak', '7', f'{len(para_lens)} абзаців, варіація {pcv:.2f}',
+                'Абзаци майже однакової довжини. Не нав\'язуй квот, але один-два довші чи коротші абзаци — норма людського тексту.')
+
+    # ── тире: щільність на речення й тире-зʼєднувач після назви пункту ──
+    sent_total = len(all_sents)
+    dash_sents = sum(1 for _, snt in all_sents if DASH.search(f' {snt} '))
+    if sent_total >= 8 and dash_sents / sent_total > 0.25:
+        add(all_sents[0][0], 'dash-rate', 'medium', '8', f'тире в {dash_sents} з {sent_total} речень',
+            f'Тире в {dash_sents * 100 // sent_total} реченнях зі 100. У людей ≈ 9, у Claude ≈ 24 (вимір panchlab/humanizer-uk). '
+            'Спершу зніми тире-зʼєднувачі, з граматичних лиши потрібні, решту речень перебудуй. Діалоги й діапазони не рахуються.')
+    labels = [ln for ln, s, k in blocks if k == 'list' and LABEL_DASH.match(s)]
+    if len(labels) >= 2:
+        add(labels[0], 'label-dash', 'strong' if len(labels) >= 3 else 'medium', '8', lines[labels[0]],
+            f'{len(labels)} пунктів «Назва — пояснення». Таке тире — зʼєднувач: у Claude це ≈ 45 % усіх тире, у людей до 1 %. '
+            'Заміни на двокрапку, крапку або перепиши пункт реченням.')
+
+    # ── розмітка чату й заглушки ──
+    raw = text.split('\n')
+    holders = [(i, m.group(0)) for i, l in enumerate(lines) for m in PLACEHOLDER.finditer(l)]
+    if holders:
+        add(holders[0][0], 'placeholder', 'strong', '22', ', '.join(h for _, h in holders[:4]),
+            f'Заглушки ({len(holders)}): місця для фактів автора. У готовому тексті заміни фактом або винеси в питання автору.')
+    if channel in PLAIN_CHANNELS:
+        md = [(i, l) for i, l in enumerate(lines) if '**' in l or HEADING.match(l) or HR.match(raw[i] if i < len(raw) else '')]
+        if md:
+            add(md[0][0], 'markup-in-plain', 'strong', '19', md[0][1],
+                f'Розмітка Markdown ({len(md)} рядків) у каналі «{channel}», який її не показує: зірочки й решітки побачить читач. '
+                'Прибери символи, структуру (абзаци, порядок) лиши.')
+    excl = sum(s.count('!') for ln, s, k in prose)
+    if words >= 150 and excl >= 3 and excl * 1000 / words > 8:
+        add(prose[0][0], 'exclamations', 'weak', '16', f'{excl} знаків оклику на {words} слів',
+            f'{excl * 1000 / words:.0f} знаків оклику на 1000 слів (у Claude в постах ≈ 11–15, у людській рекламі ≈ 2–6).')
+
     triads = [(ln, m.group(0)) for ln, s, k in prose for m in TRIAD.finditer(re.sub(r'\*\*', '', s))]
     if words and len(triads) >= 3 and len(triads) * 1000 / words >= 6:
         add(triads[0][0], 'triads', 'weak', '6', '; '.join(t for _, t in triads[:3]),
@@ -287,11 +332,30 @@ def scan(text, path='<текст>', rules=None):
             add(ln, 'one-line-closer', 'weak', '2', s,
                 'Короткий абзац-«вирок» наприкінці розділу. Якщо він повторює попереднє — прибери.')
 
+    # окреме слабке словникове слово нічого не означає: лишаємо його, лише якщо в тексті є інші ознаки
+    rule_keys = {r.key for r in rules}
+    others = [f for f in findings if not (f.strength == 'weak' and f.key in rule_keys)]
+    if not others:
+        findings = [f for f in findings if not (f.strength == 'weak' and f.key in rule_keys)]
+
+    # ── ознаки людського тексту (не віднімаються від оцінки, але важать для рішення) ──
+    human = []
+    hy = sum(len(HYPHEN_AS_DASH.findall(s)) for ln, s, k in prose)
+    if hy:
+        human.append(f'дефіс замість тире ({hy})')
+    lat = sum(len([w for w in LATIN_IN_CYR.findall(s) if re.search('[a-zA-Z]', w) and re.search('[а-яА-ЯіїєґІЇЄҐ]', w)])
+              for ln, s, k in prose)
+    if lat:
+        human.append(f'латинські літери в кириличних словах ({lat})')
+    aps = {c for c in "ʼ’'" if re.search(f'[а-яіїєґ]{c}[а-яіїєґ]', text, re.I)}
+    if len(aps) > 1:
+        human.append('різні апострофи')
     findings.sort(key=lambda f: (f.path, f.line))
+    scan.human_signals = human
     return findings, words
 
 
-def summarize(findings, words):
+def summarize(findings, words, human=None):
     score = sum(WEIGHT[f.strength] for f in findings)
     density = score * 1000 / max(words, MIN_WORDS)
     sections = sorted({f.section for f in findings}, key=lambda x: int(x) if x.isdigit() else 99)
@@ -303,7 +367,8 @@ def summarize(findings, words):
     else:
         verdict = 'слідів ШІ-стилю майже немає'
     return {'words': words, 'findings': len(findings), 'score': round(score, 1),
-            'density_per_1000': round(density, 1), 'sections': sections, 'verdict': verdict}
+            'density_per_1000': round(density, 1), 'sections': sections, 'verdict': verdict,
+            'human_signals': human or []}
 
 
 def iter_files(paths):
@@ -329,6 +394,9 @@ def main(argv=None):
     ap.add_argument('--stdin', action='store_true', help='прочитати текст зі stdin')
     ap.add_argument('--format', choices=['text', 'json'], default='text')
     ap.add_argument('--min', choices=list(WEIGHT), default='weak', help='мінімальна сила для показу')
+    ap.add_argument('--channel', default='markdown',
+                    help='куди піде текст: markdown (сайт, документ, GitHub — типово), email, sms, instagram, '
+                         'facebook, linkedin, messenger, plain. У «простих» каналах Markdown — помилка')
     ap.add_argument('--max-score', type=float, metavar='N', help='код виходу 1, якщо щільність на 1000 слів > N')
     ap.add_argument('--rules', default=RULES_FILE, help='інший файл словника')
     ap.add_argument('--no-color', action='store_true')
@@ -354,8 +422,8 @@ def main(argv=None):
     cut = order.index(a.min)
     reports, worst = [], 0.0
     for path, text in docs:
-        fs, words = scan(text, path, rules)
-        summ = summarize(fs, words)
+        fs, words = scan(text, path, rules, a.channel)
+        summ = summarize(fs, words, getattr(scan, 'human_signals', []))
         worst = max(worst, summ['density_per_1000'])
         shown = [f for f in fs if order.index(f.strength) <= cut]
         reports.append((path, shown, summ))
@@ -373,6 +441,9 @@ def main(argv=None):
                 print(f'{f.path}:{f.line}  {tag}  «{f.match}»\n    {f.explanation}')
             print(color(f'{path}: {s["words"]} слів, {s["findings"]} ознак, щільність {s["density_per_1000"]} '
                         f'на 1000 слів → {s["verdict"]}', '1', on))
+            if s['human_signals']:
+                print(f'    Ознаки людської чернетки: {", ".join(s["human_signals"])}. Це не ШІ: виправ форму знаків '
+                      f'(ukr-proofread), слова не чіпай.')
     if a.max_score is not None and worst > a.max_score:
         return 1
     return 0
