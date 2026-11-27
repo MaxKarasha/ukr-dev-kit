@@ -46,6 +46,10 @@ class LexiconTest(unittest.TestCase):
         ks = keys('Це не просто оптимізація — це фундамент.')
         self.assertEqual(sum(k in ('не-просто-а', 'не-x-це-y') for k in ks), 1)
 
+    def test_technical_unique_is_fine(self):
+        self.assertNotIn('вражаючий', keys('Бери кількість унікальних користувачів за тиждень.'))
+        self.assertIn('вражаючий', keys('Це унікальний досвід.'))
+
     def test_skips_code(self):
         text = '```\n// Варто зазначити: це не просто код — це тест\n```\nЗвичайне речення.'
         self.assertEqual(keys(text), [])
