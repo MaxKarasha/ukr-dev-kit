@@ -11,6 +11,9 @@
     ukr_ai_tells.py post.md --format json    # для обробки
     ukr_ai_tells.py post.md --max-score 10   # код виходу 1, якщо щільність вища (CI)
 
+Приклади штампів у документації про стиль виключай коментарем: ukr-ai-tells-disable … ukr-ai-tells-enable,
+ukr-ai-tells-disable-line, ukr-ai-tells-disable-next-line (у Markdown — <!-- … -->).
+
 Лише стандартний Python 3.10+.
 """
 import argparse
@@ -21,7 +24,7 @@ import statistics
 import sys
 from dataclasses import asdict, dataclass
 
-__version__ = '0.4.0'
+__version__ = '0.4.1'
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 RULES_FILE = os.path.join(os.path.dirname(HERE), 'rules', 'tells.txt')
@@ -105,8 +108,26 @@ def prose_lines(text):
     lines = text.split('\n')
     out = []
     in_code = False
+    off = skip_next = False
     fm = bool(lines) and lines[0].strip() == '---'
     for i, raw in enumerate(lines):
+        # директиви в будь-якому коментарі: ukr-ai-tells-disable … ukr-ai-tells-enable, -disable-line, -disable-next-line
+        if 'ukr-ai-tells-' in raw:
+            if 'ukr-ai-tells-disable-next-line' in raw:
+                skip_next = True
+            elif 'ukr-ai-tells-disable-line' in raw:
+                out.append('')
+                continue
+            elif 'ukr-ai-tells-disable' in raw:
+                off = True
+            elif 'ukr-ai-tells-enable' in raw:
+                off = False
+            out.append('')
+            continue
+        if off or skip_next:
+            skip_next = False
+            out.append('')
+            continue
         if fm:
             out.append('')
             if i > 0 and raw.strip() == '---':

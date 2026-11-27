@@ -2,6 +2,25 @@
 
 Формат — [Keep a Changelog](https://keepachangelog.com/uk/1.1.0/), версії — [SemVer](https://semver.org/lang/uk/).
 
+## [0.4.1] — 2026-11-27
+
+### Виправлено
+
+- `ukr-humanize` не встановлювався через `npx skills add` і не потрапляв у skills.sh: опис без лапок
+  містив «: », і строгий YAML-парсер відкидав скіл. Опис узято в лапки; `tools/validate_skills.py`
+  тепер ловить таке до випуску.
+- Скіл: текст для каналу без Markdown (лист, SMS, пост) видається одним блоком `text` без розмітки
+  довкола; пояснення, яких не було в оригіналі, не вписуються в текст. Eval-кейс з листом — 3/3 (було 2/3).
+
+### Додано
+
+- Сканер: директиви `ukr-ai-tells-disable` … `ukr-ai-tells-enable`, `-disable-line`, `-disable-next-line`
+  для документації, що цитує штампи.
+
+### Змінено
+
+- README і сторінка PyPI переписані за власним скілом: щільність ознак 16 → 1,6 на 1000 слів.
+
 ## [0.4.0] — 2026-11-27
 
 ukr-humanize перекалібровано за вимірами 2026 року: у нових моделей словникові штампи майже зникли,
@@ -83,6 +102,7 @@ ukr-humanize перекалібровано за вимірами 2026 року:
   людей і компаній; транслітерація КМУ № 55; числа й суми прописом; валідатори TypeScript, Python, C#.
 - Плагін Claude Code з хуком автовичитки, pre-commit хуки, GitHub Action, CI на Linux, macOS і Windows.
 
+[0.4.1]: https://github.com/MaxKarasha/ukr-dev-kit/releases/tag/v0.4.1
 [0.4.0]: https://github.com/MaxKarasha/ukr-dev-kit/releases/tag/v0.4.0
 [0.3.0]: https://github.com/MaxKarasha/ukr-dev-kit/releases/tag/v0.3.0
 [0.2.0]: https://github.com/MaxKarasha/ukr-dev-kit/releases/tag/v0.2.0

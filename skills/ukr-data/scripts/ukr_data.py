@@ -26,7 +26,7 @@ import re
 import sys
 from typing import Optional
 
-__version__ = '0.4.0'
+__version__ = '0.4.1'
 APOS = 'ʼ'
 
 # ════════════════════════════════════ контрольні суми ════════════════════════════════════

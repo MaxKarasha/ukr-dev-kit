@@ -57,6 +57,10 @@ def main():
         if meta.get('name') != name:
             err(f'skills/{name}/SKILL.md: name «{meta.get("name")}» ≠ назві теки')
         desc = meta.get('description', '')
+        if not desc.startswith(('"', "'", '>', '|')) and (': ' in desc or ' #' in desc):
+            err(f'skills/{name}/SKILL.md: description без лапок містить «: » або « #» — строгі YAML-парсери '
+                f'(npx skills, skills.sh) відкинуть скіл; візьми опис у лапки')
+        desc = desc.strip('"\'')
         if not 50 <= len(desc) <= 1024:
             err(f'skills/{name}/SKILL.md: description {len(desc)} символів (треба 50–1024)')
         if len(text.splitlines()) > 500:

@@ -41,7 +41,7 @@ import gemini_tts as G  # noqa: E402
 import markup as M  # noqa: E402
 import subtitles as SUBS  # noqa: E402
 
-__version__ = '0.4.0'
+__version__ = '0.4.1'
 DATA = os.environ.get('UKR_VOICE_HOME', os.path.expanduser('~/.local/share/ukr-voice'))
 CONF = os.environ.get('UKR_VOICE_CONFIG', os.path.expanduser('~/.config/ukr-voice'))
 CACHE = os.environ.get('UKR_VOICE_CACHE', os.path.expanduser('~/.cache/ukr-voice'))

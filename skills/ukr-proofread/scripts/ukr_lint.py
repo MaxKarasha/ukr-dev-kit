@@ -30,7 +30,7 @@ import sys
 from dataclasses import dataclass, field
 from typing import Callable, Iterable, Iterator, Optional
 
-__version__ = '0.4.0'
+__version__ = '0.4.1'
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 RULES_DIR = os.path.join(os.path.dirname(HERE), 'rules')

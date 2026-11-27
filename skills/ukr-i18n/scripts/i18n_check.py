@@ -24,7 +24,7 @@ import sys
 import xml.etree.ElementTree as ET
 from typing import Optional
 
-__version__ = '0.4.0'
+__version__ = '0.4.1'
 HERE = os.path.dirname(os.path.abspath(__file__))
 UK_FORMS = ['one', 'few', 'many', 'other']
 UK_TOKENS = ['uk-UA', 'uk_UA', 'uk', 'ua', 'ukr']

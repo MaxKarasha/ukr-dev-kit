@@ -50,6 +50,13 @@ class LexiconTest(unittest.TestCase):
         self.assertNotIn('вражаючий', keys('Бери кількість унікальних користувачів за тиждень.'))
         self.assertIn('вражаючий', keys('Це унікальний досвід. Давайте розберемося.'))
 
+    def test_disable_directives(self):
+        text = ('<!-- ukr-ai-tells-disable -->\nВарто зазначити, що це не просто X — це Y.\n<!-- ukr-ai-tells-enable -->\n'
+                'Звичайне речення. <!-- ukr-ai-tells-disable-line --> Давайте розберемося.\n'
+                '<!-- ukr-ai-tells-disable-next-line -->\nУ сучасному світі все інакше.\n')
+        self.assertEqual(keys(text), [])
+        self.assertIn('давайте', keys('Давайте розберемося.'))
+
     def test_skips_code(self):
         text = '```\n// Варто зазначити: це не просто код — це тест\n```\nЗвичайне речення.'
         self.assertEqual(keys(text), [])
